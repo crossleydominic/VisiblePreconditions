@@ -6,38 +6,81 @@ using System.Threading.Tasks;
 
 namespace VisiblePreconditions.Framework
 {
-    public class Precondition<TArg>
+    /// <summary>
+    /// Precondition class that encapsulates the logic of invoking the 
+    /// validators on the value
+    /// </summary>
+    /// <typeparam name="TArg">
+    /// The argument type that will be checked against the preconditions
+    /// </typeparam>
+    internal class Precondition<TArg>
     {
+        #region Private members
+        
+        /// <summary>
+        /// The value that will be checked to ensure it complies with the preconditions
+        /// </summary>
         private TArg _value;
+        
+        /// <summary>
+        /// Whether or not the value is valid (if it's been validated)
+        /// </summary>
+        private bool? _isValid;
 
-        private bool _hasBeenValidated;
-        private bool _isValid;
+        /// <summary>
+        /// The exception that should be thrown if the value is not valid
+        /// </summary>
         private Exception _validationException;
 
-        private List<IPreconditionValidator<TArg>> _validationFunctions;
+        /// <summary>
+        /// A set of validators that will be applied to the value
+        /// </summary>
+        private IEnumerable<IPreconditionValidator<TArg>> _validationFunctions;
 
+        #endregion
+
+        #region Constructors
+        
+        /// <summary>
+        /// Construct a new Precondition wrapping the supplied value
+        /// </summary>
+        /// <param name="value">
+        /// The value that will be checked
+        /// </param>
+        /// <param name="validationTypes">
+        /// The precondition validators that will be applied to the value
+        /// </param>
         public Precondition(TArg value, List<Type> validationTypes)
         {
-            _value = value;
-            _hasBeenValidated = false;
-            _isValid = false;
-            _validationFunctions = new List<IPreconditionValidator<TArg>>();
-            _validationException = null;
+            #region Input Validation
 
-            foreach (Type t in validationTypes)
+            if (validationTypes == null)
             {
-                _validationFunctions.Add((IPreconditionValidator<TArg>) Activator.CreateInstance(t));
+                throw new ArgumentNullException("validationTypes");
             }
+
+            #endregion
+
+            _value = value;
+            _isValid = null;
+            _validationFunctions = validationTypes.Select(v => (IPreconditionValidator<TArg>)Activator.CreateInstance(v));
+            _validationException = null;
         }
 
+        #endregion
+
+        #region Public Properties
+        
+        /// <summary>
+        /// Returns the value if it passes all preconditions checks.  If the value does not pass the checks then 
+        /// an exception is generated.
+        /// </summary>
         public TArg Value
         {
             get
             {
-                if (!_hasBeenValidated)
+                if (!_isValid.HasValue)
                 {
-                    _hasBeenValidated = true;
-
                     IPreconditionValidator<TArg> failingValidator = _validationFunctions.FirstOrDefault(v => !v.IsValid(_value));
 
                     if (failingValidator == null)
@@ -55,7 +98,7 @@ namespace VisiblePreconditions.Framework
                     }
                 }
 
-                if (!_isValid)
+                if (_isValid == false)
                 {
                     throw _validationException;
                 }
@@ -63,5 +106,7 @@ namespace VisiblePreconditions.Framework
                 return _value;
             }
         }
+
+        #endregion
     }
 }

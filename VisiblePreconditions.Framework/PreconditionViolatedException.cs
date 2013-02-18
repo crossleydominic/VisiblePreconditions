@@ -6,6 +6,9 @@ using System.Threading.Tasks;
 
 namespace VisiblePreconditions.Framework
 {
+    /// <summary>
+    /// Exception that gets generated when a function argument does not pass it's precondition checks
+    /// </summary>
     public class PreconditionViolatedException : Exception
     {
         public PreconditionViolatedException(Type argumentType, string argumentValue, Type validationFunctionType) :

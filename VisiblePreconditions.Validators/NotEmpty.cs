@@ -8,6 +8,9 @@ using VisiblePreconditions.Framework;
 
 namespace VisiblePreconditions.Validators
 {
+    /// <summary>
+    /// Ensures that an ICollection function argument is not empty
+    /// </summary>
     public class NotEmpty :IPreconditionValidator<ICollection>
     {
         public bool IsValid(ICollection value)
