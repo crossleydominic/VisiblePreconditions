@@ -15,6 +15,11 @@ namespace VisiblePreconditions.Validators
     {
         public bool IsValid(ICollection value)
         {
+            if (value == null)
+            {
+                return false;
+            }
+
             return value.Count > 0;
         }
     }
