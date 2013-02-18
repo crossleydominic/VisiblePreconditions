@@ -7,8 +7,8 @@
     <ProjectGuid>{D36371C3-B3EC-46D1-974B-6BF8FD34E931}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>VisiblePreconditions.Validator.Tests</RootNamespace>
-    <AssemblyName>VisiblePreconditions.Validator.Tests</AssemblyName>
+    <RootNamespace>VisiblePreconditions.Validators.Tests</RootNamespace>
+    <AssemblyName>VisiblePreconditions.Validators.Tests</AssemblyName>
     <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
   </PropertyGroup>
