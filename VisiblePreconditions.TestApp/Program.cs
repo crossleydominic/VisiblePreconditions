@@ -14,9 +14,11 @@ namespace VisiblePreconditions.TestApp
         {
             try
             {
-                TargetClass.SinglePrecondition("some string");
+                TargetClass.SinglePrecondition("some string", new List<int> { 0 });
 
-                TargetClass.SinglePrecondition(null);
+                TargetClass.SinglePrecondition("Some string", new List<int>());
+
+                TargetClass.SinglePrecondition(null, new List<int>());
             }
             catch (Exception e)
             {
@@ -27,9 +29,10 @@ namespace VisiblePreconditions.TestApp
 
     public class TargetClass
     {
-        public static void SinglePrecondition(Precondition<string, NotNull> str)
+        public static void SinglePrecondition(Precondition<string, NotNullOrWhitespace> str, Precondition<List<int>, NotEmpty> list )
         {
             Console.WriteLine(str.Value);
+            Console.WriteLine(list.Value.Count);
         }
     }
 }
