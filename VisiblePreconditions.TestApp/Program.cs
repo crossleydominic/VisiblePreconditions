@@ -10,40 +10,79 @@ namespace VisiblePreconditions.TestApp
 {
     class Program
     {
-        static void Main(string[] args)
+        private static class CatchScope
         {
-            try
+            public static void Enter(Action action)
+            {
+                try
+                {
+                    action();
+                }
+                catch (Exception e)
+                {
+                    Console.WriteLine("Failure: " + e.Message);
+                }
+            }
+        }
+
+        private static void Main(string[] args)
+        {
+            //Success
+            CatchScope.Enter(() =>
             {
                 string joinedString = TargetClass.HasPostCondition(new List<char> {'a', 'b', 'c'});
+                Console.WriteLine("Success");
+            });
 
-                TargetClass.SinglePrecondition("some string", new List<int> { 0 });
-
-                TargetClass.SinglePrecondition("Some string", new List<int>());
-
-                TargetClass.SinglePrecondition(null, new List<int>());
-            }
-            catch (Exception e)
+            //Success
+            CatchScope.Enter(() =>
             {
-                Console.WriteLine(e.Message);
-            }
+                TargetClass.HasPreconditions("some string", new List<int> { 0 });
+                Console.WriteLine("Success");
+            });
+
+            //Failure
+            CatchScope.Enter(() =>
+            {
+                string joinedString = TargetClass.HasFailingPostCondition(new List<char> { 'a', 'b', 'c' });
+            });
+
+            //Failure
+            CatchScope.Enter(() =>
+            {
+                TargetClass.HasPreconditions("Some string", new List<int>());
+            });
+
+            //Failure
+            CatchScope.Enter(() =>
+            {
+                TargetClass.HasPreconditions(null, new List<int>());
+            });
         }
     }
 
     public class TargetClass
     {
-        public static void SinglePrecondition(
-            Precondition<string, NotNullOrWhitespace> str, 
-            Precondition<List<int>, NotEmpty> list )
+        public static void HasPreconditions(
+            Precondition<string, NotNullOrWhitespace> str,
+            Precondition<List<int>, NotEmpty> list)
         {
+            //No explicit checks required here
+
             Console.WriteLine(str.Value);
-            Console.WriteLine(list.Value.Count);
+            Console.WriteLine(list.Value);
         }
 
-        public static Postcondition<string, NotNullOrWhitespace> HasPostCondition(Precondition<List<char>, NotEmpty> list)
+        public static Postcondition<string, NotNullOrWhitespace> HasPostCondition(
+            Precondition<List<char>, NotEmpty> list)
         {
-            string str = string.Join("", list.Value);
+            return string.Join("", list.Value);
+        }
 
-            return "";
+        public static Postcondition<string, NotNullOrWhitespace> HasFailingPostCondition(
+            Precondition<List<char>, NotEmpty> list)
+        {
+            return string.Empty;
         }
     }
 }
