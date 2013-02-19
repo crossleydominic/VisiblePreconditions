@@ -39,10 +39,11 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Postcondition.cs" />
+    <Compile Include="Condition.cs" />
+    <Compile Include="IConditionValidator.cs" />
     <Compile Include="Precondition.cs" />
-    <Compile Include="IPreconditionValidator.cs" />
-    <Compile Include="PreconditionDefinitions.cs" />
-    <Compile Include="PreconditionViolatedException.cs" />
+    <Compile Include="ConditionViolatedException.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

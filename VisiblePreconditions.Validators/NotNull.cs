@@ -10,7 +10,7 @@ namespace VisiblePreconditions.Validators
     /// <summary>
     /// Ensures that a function argument is not null
     /// </summary>
-    public class NotNull : IPreconditionValidator<object>
+    public class NotNull : IConditionValidator<object>
     {
         public bool IsValid(object value)
         {

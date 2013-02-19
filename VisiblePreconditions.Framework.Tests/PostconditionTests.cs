@@ -8,12 +8,12 @@ using NUnit.Framework;
 namespace VisiblePreconditions.Framework.Tests
 {
     [TestFixture]
-    public class PreconditionTests
+    public class PostconditionTests
     {
         [Test]
         public void Precondition_TypeCastsAndEvaluatesCorrectly()
         {
-            Precondition<int, ConditionTests.AlwaysSucceedsValidator> precondition = 5;
+            Postcondition<int, ConditionTests.AlwaysSucceedsValidator> precondition = 5;
 
             Assert.AreEqual(5, precondition.Value);
         }
@@ -21,10 +21,13 @@ namespace VisiblePreconditions.Framework.Tests
         [Test]
         public void Precondition_UsableOnDelegates()
         {
-            Func<Precondition<int, ConditionTests.AlwaysSucceedsValidator>, Precondition<int, ConditionTests.AlwaysSucceedsValidator>, int> func =
-                (x, y) => x.Value + y.Value;
+            Func<int, int, Postcondition<int, ConditionTests.AlwaysSucceedsValidator>> func =
+                (x, y) => x + y;
 
-            Assert.AreEqual(11, func(5, 6));
+            //Automatic casting
+            int result = func(5, 6);
+
+            Assert.AreEqual(11, result );
         }
     }
 }

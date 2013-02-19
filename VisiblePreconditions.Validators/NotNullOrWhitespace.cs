@@ -10,7 +10,7 @@ namespace VisiblePreconditions.Validators
     /// <summary>
     /// Ensures that a string function argument is not null or whitespace
     /// </summary>
-    public class NotNullOrWhitespace : IPreconditionValidator<string>
+    public class NotNullOrWhitespace : IConditionValidator<string>
     {
         public bool IsValid(string value)
         {

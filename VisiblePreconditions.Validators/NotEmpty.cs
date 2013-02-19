@@ -11,7 +11,7 @@ namespace VisiblePreconditions.Validators
     /// <summary>
     /// Ensures that an ICollection function argument is not empty
     /// </summary>
-    public class NotEmpty :IPreconditionValidator<ICollection>
+    public class NotEmpty :IConditionValidator<ICollection>
     {
         public bool IsValid(ICollection value)
         {

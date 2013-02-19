@@ -7,106 +7,245 @@ using System.Threading.Tasks;
 namespace VisiblePreconditions.Framework
 {
     /// <summary>
-    /// Precondition class that encapsulates the logic of invoking the 
-    /// validators on the value
+    /// Precondition that for an argument that has a single validator
     /// </summary>
     /// <typeparam name="TArg">
-    /// The argument type that will be checked against the preconditions
+    /// The type of the argument
     /// </typeparam>
-    internal class Precondition<TArg>
+    /// <typeparam name="TFunc1">
+    /// The type of the validator
+    /// </typeparam>
+    /// <remarks>
+    /// We declare this type as a struct so that even if we call a function by explicitly
+    /// passing null we'll still execute the implicit conversion operator.
+    /// If this type was a class then the implicit conversion operator DOES NOT get invoked
+    /// when calling methods and explicitly passing null.
+    /// 
+    /// This does mean that we can't derive from other types which is why we have to reinvent
+    /// the wheel for Precondition types that take more validator arguments 
+    /// </remarks>
+    public struct Precondition<TArg, TFunc1>
+        where TFunc1 : IConditionValidator<TArg>
     {
-        #region Private members
-        
-        /// <summary>
-        /// The value that will be checked to ensure it complies with the preconditions
-        /// </summary>
-        private TArg _value;
-        
-        /// <summary>
-        /// Whether or not the value is valid (if it's been validated)
-        /// </summary>
-        private bool? _isValid;
+        #region Static members
 
         /// <summary>
-        /// The exception that should be thrown if the value is not valid
+        /// The list of validator types
         /// </summary>
-        private Exception _validationException;
-
-        /// <summary>
-        /// A set of validators that will be applied to the value
-        /// </summary>
-        private IEnumerable<IPreconditionValidator<TArg>> _validationFunctions;
+        private static readonly List<Type> _genericTypes = new List<Type>() { typeof(TFunc1) };
 
         #endregion
 
-        #region Constructors
-        
+        #region Private members
+
         /// <summary>
-        /// Construct a new Precondition wrapping the supplied value
+        /// The Condition type that will perform the validation
+        /// (We cannot derivce from it because this type is a struct)
         /// </summary>
-        /// <param name="value">
-        /// The value that will be checked
-        /// </param>
-        /// <param name="validationTypes">
-        /// The precondition validators that will be applied to the value
-        /// </param>
-        public Precondition(TArg value, List<Type> validationTypes)
-        {
-            #region Input Validation
-
-            if (validationTypes == null)
-            {
-                throw new ArgumentNullException("validationTypes");
-            }
-
-            #endregion
-
-            _value = value;
-            _isValid = null;
-            _validationFunctions = validationTypes.Select(v => (IPreconditionValidator<TArg>)Activator.CreateInstance(v));
-            _validationException = null;
-        }
+        private Condition<TArg> _precondition;
 
         #endregion
 
         #region Public Properties
         
         /// <summary>
-        /// Returns the value if it passes all preconditions checks.  If the value does not pass the checks then 
-        /// an exception is generated.
+        /// Invokes that precondition checks on the value and, if valid, returns the value
         /// </summary>
         public TArg Value
         {
-            get
+            get { return _precondition.Value; }
+        }
+
+        #endregion
+
+        #region Conversion operators
+        
+        /// <summary>
+        /// Allow arguments to be automatically converted
+        /// </summary>
+        public static implicit operator Precondition<TArg, TFunc1>(TArg arg)
+        {
+            return new Precondition<TArg, TFunc1>()
             {
-                if (!_isValid.HasValue)
-                {
-                    IPreconditionValidator<TArg> failingValidator = _validationFunctions.FirstOrDefault(v => !v.IsValid(_value));
-
-                    if (failingValidator == null)
-                    {
-                        _isValid = true;
-                        _validationException = null;
-                    }
-                    else
-                    {
-                        _isValid = false;
-                        _validationException = new PreconditionViolatedException(
-                            typeof(TArg),
-                            (_value == null ? "null" : _value.ToString()),
-                            failingValidator.GetType());
-                    }
-                }
-
-                if (_isValid == false)
-                {
-                    throw _validationException;
-                }
-
-                return _value;
-            }
+                _precondition = new Condition<TArg>(arg, _genericTypes)
+            };
         }
 
         #endregion
     }
+
+    #region Two validators
+
+    public struct Precondition<TArg, TFunc1, TFunc2>
+        where TFunc1 : IConditionValidator<TArg>
+    {
+        private static readonly List<Type> _genericTypes = new List<Type>() { typeof(TFunc1), typeof(TFunc2) };
+
+        private Condition<TArg> _precondition;
+
+        public TArg Value
+        {
+            get { return _precondition.Value; }
+        }
+
+        public static implicit operator Precondition<TArg, TFunc1, TFunc2>(TArg arg)
+        {
+            return new Precondition<TArg, TFunc1, TFunc2>()
+            {
+                _precondition = new Condition<TArg>(arg, _genericTypes)
+            };
+        }
+    }
+
+    #endregion
+
+    #region Three validators
+
+    public struct Precondition<TArg, TFunc1, TFunc2, TFunc3>
+       where TFunc1 : IConditionValidator<TArg>
+    {
+        private static readonly List<Type> _genericTypes = new List<Type>() { typeof(TFunc1), typeof(TFunc2), typeof(TFunc3) };
+
+        private Condition<TArg> _precondition;
+
+        public TArg Value
+        {
+            get { return _precondition.Value; }
+        }
+
+        public static implicit operator Precondition<TArg, TFunc1, TFunc2, TFunc3>(TArg arg)
+        {
+            return new Precondition<TArg, TFunc1, TFunc2, TFunc3>()
+            {
+                _precondition = new Condition<TArg>(arg, _genericTypes)
+            };
+        }
+    }
+
+    #endregion
+
+    #region Four validators
+
+    public struct Precondition<TArg, TFunc1, TFunc2, TFunc3, TFunc4>
+       where TFunc1 : IConditionValidator<TArg>
+    {
+        private static readonly List<Type> _genericTypes = new List<Type>() { typeof(TFunc1), typeof(TFunc2), typeof(TFunc3), typeof(TFunc4) };
+
+        private Condition<TArg> _precondition;
+
+        public TArg Value
+        {
+            get { return _precondition.Value; }
+        }
+
+        public static implicit operator Precondition<TArg, TFunc1, TFunc2, TFunc3, TFunc4>(TArg arg)
+        {
+            return new Precondition<TArg, TFunc1, TFunc2, TFunc3, TFunc4>()
+            {
+                _precondition = new Condition<TArg>(arg, _genericTypes)
+            };
+        }
+    }
+
+    #endregion
+
+    #region Five validators
+
+    public struct Precondition<TArg, TFunc1, TFunc2, TFunc3, TFunc4, TFunc5>
+       where TFunc1 : IConditionValidator<TArg>
+    {
+        private static readonly List<Type> _genericTypes = new List<Type>() { typeof(TFunc1), typeof(TFunc2), typeof(TFunc3), typeof(TFunc4), typeof(TFunc5) };
+
+        private Condition<TArg> _precondition;
+
+        public TArg Value
+        {
+            get { return _precondition.Value; }
+        }
+
+        public static implicit operator Precondition<TArg, TFunc1, TFunc2, TFunc3, TFunc4, TFunc5>(TArg arg)
+        {
+            return new Precondition<TArg, TFunc1, TFunc2, TFunc3, TFunc4, TFunc5>()
+            {
+                _precondition = new Condition<TArg>(arg, _genericTypes)
+            };
+        }
+    }
+
+    #endregion
+
+    #region Six validators
+
+    public struct Precondition<TArg, TFunc1, TFunc2, TFunc3, TFunc4, TFunc5, TFunc6>
+       where TFunc1 : IConditionValidator<TArg>
+    {
+        private static readonly List<Type> _genericTypes = new List<Type>() { typeof(TFunc1), typeof(TFunc2), typeof(TFunc3), typeof(TFunc4), typeof(TFunc5), typeof(TFunc6) };
+
+        private Condition<TArg> _precondition;
+
+        public TArg Value
+        {
+            get { return _precondition.Value; }
+        }
+
+        public static implicit operator Precondition<TArg, TFunc1, TFunc2, TFunc3, TFunc4, TFunc5, TFunc6>(TArg arg)
+        {
+            return new Precondition<TArg, TFunc1, TFunc2, TFunc3, TFunc4, TFunc5, TFunc6>()
+            {
+                _precondition = new Condition<TArg>(arg, _genericTypes)
+            };
+        }
+    }
+
+    #endregion
+
+    #region Seven validators
+
+    public struct Precondition<TArg, TFunc1, TFunc2, TFunc3, TFunc4, TFunc5, TFunc6, TFunc7>
+       where TFunc1 : IConditionValidator<TArg>
+    {
+        private static readonly List<Type> _genericTypes = new List<Type>() { typeof(TFunc1), typeof(TFunc2), typeof(TFunc3), typeof(TFunc4), typeof(TFunc5), typeof(TFunc6), typeof(TFunc7) };
+
+        private Condition<TArg> _precondition;
+
+        public TArg Value
+        {
+            get { return _precondition.Value; }
+        }
+
+        public static implicit operator Precondition<TArg, TFunc1, TFunc2, TFunc3, TFunc4, TFunc5, TFunc6, TFunc7>(TArg arg)
+        {
+            return new Precondition<TArg, TFunc1, TFunc2, TFunc3, TFunc4, TFunc5, TFunc6, TFunc7>()
+            {
+                _precondition = new Condition<TArg>(arg, _genericTypes)
+            };
+        }
+    }
+
+    #endregion
+
+    #region Eight validators
+
+    public struct Precondition<TArg, TFunc1, TFunc2, TFunc3, TFunc4, TFunc5, TFunc6, TFunc7, TFunc8>
+        where TFunc1 : IConditionValidator<TArg>
+    {
+        private static readonly List<Type> _genericTypes = new List<Type>() { typeof(TFunc1), typeof(TFunc2), typeof(TFunc3), typeof(TFunc4), typeof(TFunc5), typeof(TFunc6), typeof(TFunc7), typeof(TFunc8) };
+
+        private Condition<TArg> _precondition;
+
+        public TArg Value
+        {
+            get { return _precondition.Value; }
+        }
+
+        public static implicit operator Precondition<TArg, TFunc1, TFunc2, TFunc3, TFunc4, TFunc5, TFunc6, TFunc7, TFunc8>(TArg arg)
+        {
+            return new Precondition<TArg, TFunc1, TFunc2, TFunc3, TFunc4, TFunc5, TFunc6, TFunc7, TFunc8>()
+            {
+                _precondition = new Condition<TArg>(arg, _genericTypes)
+            };
+        }
+    }
+
+    #endregion
 }
